@@ -42,7 +42,7 @@ const Register = () => {
       return;
     }
 
-    const res = await axios.post(`https://api.imgbb.com/1/upload?key=ab6e3d0f432926f93d9ca9af62dc2411`,
+    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMBB}`,
         {image:file},
         {
             headers:{
@@ -53,6 +53,13 @@ const Register = () => {
 
     const photoURL = res.data.data.
 display_url;
+
+const formData = {
+            name,
+            email,
+            password,
+            photoURL
+}
 
 if(res.data.success == true) {
    // reset status
@@ -70,6 +77,15 @@ if(res.data.success == true) {
 
         updateProfile(result.user, profile)
           .then(() => {
+
+            axios.post('http://localhost:5000/users', formData)
+            .then(res =>{
+                console.log(res.data)
+            })
+            .catch(err =>{
+                console.log(err)
+            })
+
             // success alert
             Swal.fire({
               icon: "success",

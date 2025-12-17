@@ -13,12 +13,14 @@ import {
 // import { auth } from "../firebase/firebase.init";
 import { AuthContext } from "./AuthContext";
 import { auth } from "../firebase/firebase.config";
+import axios from "axios";
 
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState('');
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -43,12 +45,28 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+    //   console.log(currentUser)
       setLoading(false);
     });
     return () => {
       unsubscribe();
     };
   }, []);
+
+
+  useEffect(() => {
+  if (!user?.email) return; 
+  axios.get(`http://localhost:5000/users/role/${user.email}`)
+    .then(res => {
+      setRole(res.data.role);
+    })
+    .catch(err => {
+      console.error("Error fetching user role:", err);
+    });
+    
+}, [user]); // Re-runs whenever the user object changes
+
+  console.log(role)
 
   const authInfo = {
     setUser,
