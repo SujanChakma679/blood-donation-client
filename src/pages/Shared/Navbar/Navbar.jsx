@@ -102,6 +102,10 @@ const Navbar = () => {
         >
           {isDark ? <Sun size={20} /> : <Moon size={20} />}
         </button>
+
+        <Link to="/dashboard" className="btn-primary">
+            Dashboard
+          </Link>
       
         {user ? (
           <button onClick={handleLogOutUser} className="btn-primary">

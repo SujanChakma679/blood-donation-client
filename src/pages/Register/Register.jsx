@@ -1,7 +1,4 @@
-
-
-
-import React, { useContext, useState }  from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router";
 import Swal from "sweetalert2";
@@ -15,7 +12,7 @@ const Register = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleRegister = async(e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     const form = e.target;
     const name = form.name.value;
@@ -23,8 +20,8 @@ const Register = () => {
     const password = form.password.value;
     const photo = form.photo;
     const file = photo.files[0];
+    const role =form.role.value;
 
-    console.log(file)
 
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{6,}$/;
@@ -42,84 +39,82 @@ const Register = () => {
       return;
     }
 
-    const res = await axios.post(`https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMBB}`,
-        {image:file},
-        {
-            headers:{
-                'Content-Type': 'multipart/form-data'
-            }
-        }
-    )
+    const res = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMBB}`,
+      { image: file },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
 
-    const photoURL = res.data.data.
-display_url;
+    const photoURL = res.data.data.display_url;
 
-const formData = {
-            name,
-            email,
-            password,
-            photoURL
-}
+    const formData = {
+      name,
+      email,
+      password,
+      photoURL,
+      role,
+    };
 
-if(res.data.success == true) {
-   // reset status
-    setError("");
+    if (res.data.success == true) {
+      // reset status
+      setError("");
 
-    createUser(email, password)
-      .then((result) => {
-        const user = result.user;
-        setUser(user);
+      createUser(email, password)
+        .then((result) => {
+          const user = result.user;
+          setUser(user);
 
-        const profile = {
-          displayName: name,
-          photoURL: photoURL,
-        };
+          const profile = {
+            displayName: name,
+            photoURL: photoURL,
+          };
 
-        updateProfile(result.user, profile)
-          .then(() => {
+          updateProfile(result.user, profile)
+            .then(() => {
+              axios
+                .post("http://localhost:5000/users", formData)
+                .then((res) => {
+                  console.log(res.data);
+                })
+                .catch((err) => {
+                  console.log(err);
+                });
 
-            axios.post('http://localhost:5000/users', formData)
-            .then(res =>{
-                console.log(res.data)
+              // success alert
+              Swal.fire({
+                icon: "success",
+                title: "Account Created!",
+                text: "Your account has been created successfully.",
+              }).then(() => {
+                form.reset();
+                navigate(location?.state || "/");
+              });
             })
-            .catch(err =>{
-                console.log(err)
-            })
-
-            // success alert
-            Swal.fire({
-              icon: "success",
-              title: "Account Created!",
-              text: "Your account has been created successfully.",
-            }).then(() => {
-              form.reset();
-              navigate(location?.state || "/");
+            .catch((err) => {
+              console.error(err.message);
+              setError(err.message);
+              Swal.fire({
+                icon: "error",
+                title: "Profile Update Failed",
+                text: err.message,
+              });
             });
-          })
-          .catch((err) => {
-            console.error(err.message);
-            setError(err.message);
-            Swal.fire({
-              icon: "error",
-              title: "Profile Update Failed",
-              text: err.message,
-            });
+        })
+        .catch((error) => {
+          console.log(error.message);
+          setError(error.message);
+          // SweetAlert for Firebase error
+          Swal.fire({
+            icon: "error",
+            title: "Registration Failed",
+            text: error.message,
           });
-      })
-      .catch((error) => {
-        console.log(error.message);
-        setError(error.message);
-        // SweetAlert for Firebase error
-        Swal.fire({
-          icon: "error",
-          title: "Registration Failed",
-          text: error.message,
         });
-      }); 
-}
-
-
-    
+    }
   };
 
   return (
@@ -167,6 +162,25 @@ if(res.data.success == true) {
                     placeholder="Password"
                     required
                   />
+
+                  {/* select a role */}
+                  <select
+                    name="role"
+                    defaultValue="Select Your Role"
+                    className="select select-neutral"
+                  >
+                    <option 
+                    disabled={true}>
+                    Select Your Role
+                    </option>
+                    <option 
+                     value='donor'>Donor
+                     </option>
+                    <option     value='volunteer'>Volunteer
+                    </option>
+                    
+                  </select>
+
                   <button type="submit" className="btn btn-neutral mt-4">
                     Register
                   </button>
@@ -191,4 +205,3 @@ if(res.data.success == true) {
 };
 
 export default Register;
-
