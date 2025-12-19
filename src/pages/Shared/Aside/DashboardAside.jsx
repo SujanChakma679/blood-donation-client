@@ -1,48 +1,57 @@
+import React, { useContext } from "react";
 import { NavLink } from "react-router";
-
-// TEMP: replace later with real role from DB
-const userRole = "donor"; // admin | donor | volunteer
+import { AuthContext } from "../../../context/AuthContext";
 
 const DashboardAside = () => {
+  const { role } = useContext(AuthContext);
+
   return (
-    <aside className="w-64 bg-red-950 text-white p-5">
+    <aside className="w-64 min-h-screen bg-gray-800 text-white p-5">
       <h2 className="text-xl font-bold mb-6">Dashboard</h2>
 
-      {/* ADMIN MENU */}
-      {userRole === "admin" && (
+      {/* ================= DONOR MENU ================= */}
+      {role === "donor" && (
         <>
-          <NavLink to="/dashboard/admin" className="block mb-3">
-            Admin Home
+          <NavLink to="/dashboard" className="block mb-3">
+            🏠 Dashboard Home
           </NavLink>
-          <NavLink to="/dashboard/users" className="block mb-3">
-            Manage Users
+
+          <NavLink to="/dashboard/my-donation-requests" className="block mb-3">
+            🩸 My Donation Requests
           </NavLink>
-          <NavLink to="/dashboard/blood-requests" className="block mb-3">
-            Blood Requests
+
+          <NavLink to="/dashboard/create-donation-request" className="block mb-3">
+            ➕ Create Donation Request
           </NavLink>
         </>
       )}
 
-      {/* DONOR MENU */}
-      {userRole === "donor" && (
+      {/* ================= ADMIN MENU ================= */}
+      {role === "admin" && (
         <>
-          <NavLink to="/dashboard/donor" className="block mb-3">
-            Donor Home
+          <NavLink to="/dashboard" className="block mb-3">
+            🏠 Dashboard Home
           </NavLink>
-          <NavLink to="/dashboard/my-donations" className="block mb-3">
-            My Donations
+
+          <NavLink to="/dashboard/all-users" className="block mb-3">
+            👤 All Users
+          </NavLink>
+
+          <NavLink to="/dashboard/all-blood-donation-request" className="block mb-3">
+            🩸 All Blood Donation Requests
           </NavLink>
         </>
       )}
 
-      {/* VOLUNTEER MENU */}
-      {userRole === "volunteer" && (
+      {/* ================= VOLUNTEER MENU ================= */}
+      {role === "volunteer" && (
         <>
-          <NavLink to="/dashboard/volunteer" className="block mb-3">
-            Volunteer Home
+          <NavLink to="/dashboard" className="block mb-3">
+            🏠 Dashboard Home
           </NavLink>
-          <NavLink to="/dashboard/assigned-requests" className="block mb-3">
-            Assigned Requests
+
+          <NavLink to="/dashboard/all-blood-donation-request" className="block mb-3">
+            🩸 All Blood Donation Requests
           </NavLink>
         </>
       )}

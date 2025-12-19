@@ -1,11 +1,14 @@
 import React from 'react';
 import { Outlet } from 'react-router';
 import DashboardAside from '../pages/Shared/Aside/DashboardAside';
+import Navbar from '../pages/Shared/Navbar/Navbar';
 
 
 const DashboardLayout = () => {
     return (
-         <div className="flex min-h-screen">
+         <div>
+            <Navbar></Navbar>
+            <div className="flex min-h-screen">
       
       {/* Aside */}
       <DashboardAside></DashboardAside>
@@ -15,6 +18,7 @@ const DashboardLayout = () => {
         <Outlet />
       </main>
     </div>
+         </div>
     );
 };
 

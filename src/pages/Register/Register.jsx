@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, useLocation, useNavigate } from "react-router";
 import Swal from "sweetalert2";
@@ -9,6 +9,29 @@ const Register = () => {
   const [error, setError] = useState("");
   const { createUser, setUser } = useContext(AuthContext);
 
+  const [upazilas, setUpazilas] = useState([]);
+  const [upazila, setUpazila] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [district, setDistrict] = useState([]);
+
+  useEffect(() => {
+    
+    axios
+      .get("/upazila.json") 
+      .then((res) => {
+        setUpazilas(res.data.upazilas);
+      })
+      .catch((err) => console.error("Upazila fetch error:", err));
+
+    axios
+      .get("/district.json")
+      .then((res) => {
+        setDistricts(res.data.districts || res.data);
+      })
+      .catch((err) => console.error("District fetch error:", err));
+  }, []);
+  
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,10 +41,11 @@ const Register = () => {
     const name = form.name.value;
     const email = form.email.value;
     const password = form.password.value;
+    const confirmPassword = form.confirmPassword.value;
     const photo = form.photo;
     const file = photo.files[0];
-    const role =form.role.value;
-
+    // const role = form.role.value;
+    const blood = form.blood.value;
 
     const passwordPattern =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+=<>?{}[\]~]).{6,}$/;
@@ -37,6 +61,16 @@ const Register = () => {
         text: "Password must be at least 6 characters, include 1 uppercase, 1 lowercase, and 1 special character.",
       });
       return;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      Swal.fire({
+        icon: "error",
+        title: "Not Match",
+        text: "Password must be match.",
+      });
+      return; 
     }
 
     const res = await axios.post(
@@ -56,8 +90,12 @@ const Register = () => {
       email,
       password,
       photoURL,
-      role,
+      // role,
+      blood,
+      district,
+      upazila,
     };
+
 
     if (res.data.success == true) {
       // reset status
@@ -153,6 +191,66 @@ const Register = () => {
                     placeholder="Email"
                     required
                   />
+
+                  {/* select a role */}
+                  {/* <select
+                    name="role"
+                    defaultValue="Select Your Role"
+                    className="select select-neutral"
+                    required
+                  >
+                    <option disabled={true}>Select Your Role</option>
+                    <option value="donor">Donor</option>
+                    <option value="volunteer">Volunteer</option>
+                  </select> */}
+
+                  {/* select your blood group */}
+
+                  <select
+                    name="blood"
+                    className="select select-neutral"
+                    defaultValue="Chose Your Blood Group"
+                    required
+                  >
+                    <option disabled={true}>Chose Your Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+
+                  {/* select a district */}
+                  <select
+                    value={district}
+                    onChange={(e)=> setDistrict(e.target.value)}
+                    className="select select-neutral"
+                    required
+                  >
+                    <option value="" disabled>Select Your District</option>
+                    {
+                      districts.map(d=> <option value={d?.name} key={d.id}>{d?.name}</option>)
+                    }
+                   
+                  </select>
+
+                  {/* select a upazila */}
+                  <select
+                    value={upazila}
+                    onChange={(e)=> setUpazila(e.target.value)}
+                    className="select select-neutral"
+                    required
+                  >
+                    <option value="" disabled>Select Your Upazila</option>
+                    {
+                      upazilas.map(u=> <option value={u?.name} key={u.id}>{u?.name}</option>)
+                    }
+                   
+                  </select>
+
                   {/* password */}
                   <label className="label">Password</label>
                   <input
@@ -163,23 +261,17 @@ const Register = () => {
                     required
                   />
 
-                  {/* select a role */}
-                  <select
-                    name="role"
-                    defaultValue="Select Your Role"
-                    className="select select-neutral"
-                  >
-                    <option 
-                    disabled={true}>
-                    Select Your Role
-                    </option>
-                    <option 
-                     value='donor'>Donor
-                     </option>
-                    <option     value='volunteer'>Volunteer
-                    </option>
-                    
-                  </select>
+                  {/* Confirm Password Field */}
+                  <div className="form-control">
+                    <label className="label">Confirm Password</label>
+                    <input
+                      name="confirmPassword"
+                      type="password"
+                      className="input"
+                      placeholder="Confirm Password"
+                      required
+                    />
+                  </div>
 
                   <button type="submit" className="btn btn-neutral mt-4">
                     Register

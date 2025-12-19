@@ -66,7 +66,7 @@ const AuthProvider = ({ children }) => {
     
 }, [user]); // Re-runs whenever the user object changes
 
-  console.log(role)
+
 
   const authInfo = {
     setUser,
