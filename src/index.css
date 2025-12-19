@@ -13,3 +13,36 @@ body{
   font-style: normal;
 }
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .btn-gradient {
+    /* Your specific colors: Purple-800 (#5b21b6) to Rose-800 (#9f1239) */
+    background-image: linear-gradient(to right, #5b21b6, #9f1239);
+    color: white;
+    font-weight: 600;
+    border-radius: 0.5rem; /* rounded-lg */
+    display: inline-block;
+    text-align: center;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    
+    /* Default Padding (can be overridden) */
+    padding: 0.5rem 1.5rem; 
+  }
+
+  .btn-gradient:hover {
+    /* Hover colors: Purple-600 (#7c3aed) to Rose-600 (#e11d48) */
+    background-image: linear-gradient(to right, #7c3aed, #e11d48);
+    transform: translateY(-1px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-gradient:active {
+    transform: scale(0.96);
+  }
+}

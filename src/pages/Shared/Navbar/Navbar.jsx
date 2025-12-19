@@ -51,7 +51,7 @@ const Navbar = () => {
             <NavLink to="movies/add">Add Movies</NavLink>
           </li>
           <li>
-            <NavLink to="movies/my-collections">My Collections</NavLink>
+            <NavLink to="/dashboard">Dashboard</NavLink>
           </li>
         </>
       )}
@@ -103,16 +103,14 @@ const Navbar = () => {
           {isDark ? <Sun size={20} /> : <Moon size={20} />}
         </button>
 
-        <Link to="/dashboard" className="btn-primary">
-            Dashboard
-          </Link>
+        
       
         {user ? (
-          <button onClick={handleLogOutUser} className="btn-primary">
+          <button onClick={handleLogOutUser} className="btn-gradient">
             Sign Out
           </button>
         ) : (
-          <Link to="/login" className="btn-primary">
+          <Link to="/login" className="btn-gradient">
             Login
           </Link>
         )}

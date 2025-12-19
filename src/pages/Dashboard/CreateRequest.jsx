@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../context/AuthContext";
-
+import Swal from "sweetalert2";
 
 const CreateRequest = () => {
   const { user } = useContext(AuthContext);
@@ -43,6 +43,44 @@ const CreateRequest = () => {
   };
 
   // ---------- HANDLE SUBMIT ----------
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   const donationRequest = {
+  //     requesterName: user?.displayName,
+  //     requesterEmail: user?.email,
+  //     recipientName: formData.recipientName,
+  //     district,
+  //     upazila,
+  //     hospitalName: formData.hospitalName,
+  //     address: formData.address,
+  //     bloodGroup: formData.bloodGroup,
+  //     donationDate: formData.donationDate,
+  //     donationTime: formData.donationTime,
+  //     message: formData.message,
+  //     donationStatus: "pending",
+  //     createdAt: new Date(),
+  //   };
+
+  //   try {
+  //     const res = await axios.post(
+  //       "http://localhost:5000/donation-requests",
+  //       donationRequest
+  //     );
+
+  //     if (res.data.insertedId) {
+  //       // success alert
+  //       Swal.fire({
+  //         icon: "success",
+  //         title: "Request Created!",
+  //         text: "Donation request created successfully!",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Donation request error:", error);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -69,10 +107,36 @@ const CreateRequest = () => {
       );
 
       if (res.data.insertedId) {
-        alert("Donation request created successfully!");
+        // 1. Show success alert
+        Swal.fire({
+          icon: "success",
+          title: "Request Created!",
+          text: "Donation request created successfully!",
+        });
+
+        // 2. Clear all form fields
+        setFormData({
+          recipientName: "",
+          hospitalName: "",
+          address: "",
+          bloodGroup: "",
+          donationDate: "",
+          donationTime: "",
+          message: "",
+        });
+        setDistrict("");
+        setUpazila("");
+        
+        // Optional: Reset the form HTML element to clear any browser-level caching
+        e.target.reset();
       }
     } catch (error) {
       console.error("Donation request error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Something went wrong while creating the request.",
+      });
     }
   };
 
@@ -81,7 +145,6 @@ const CreateRequest = () => {
       <h2 className="text-2xl font-bold mb-4">Create Donation Request</h2>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-
         {/* Requester Name */}
         <input
           type="text"
@@ -115,9 +178,13 @@ const CreateRequest = () => {
           className="select select-bordered"
           required
         >
-          <option value="" disabled>Select District</option>
+          <option value="" disabled>
+            Select District
+          </option>
           {districts.map((d) => (
-            <option key={d.id} value={d.name}>{d.name}</option>
+            <option key={d.id} value={d.name}>
+              {d.name}
+            </option>
           ))}
         </select>
 
@@ -128,9 +195,13 @@ const CreateRequest = () => {
           className="select select-bordered"
           required
         >
-          <option value="" disabled>Select Upazila</option>
+          <option value="" disabled>
+            Select Upazila
+          </option>
           {upazilas.map((u) => (
-            <option key={u.id} value={u.name}>{u.name}</option>
+            <option key={u.id} value={u.name}>
+              {u.name}
+            </option>
           ))}
         </select>
 
@@ -162,9 +233,13 @@ const CreateRequest = () => {
           required
           onChange={handleChange}
         >
-          <option value="" disabled>Select Blood Group</option>
-          {["A+","A-","B+","B-","AB+","AB-","O+","O-"].map(bg => (
-            <option key={bg} value={bg}>{bg}</option>
+          <option value="" disabled>
+            Select Blood Group
+          </option>
+          {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
+            <option key={bg} value={bg}>
+              {bg}
+            </option>
           ))}
         </select>
 
@@ -196,10 +271,9 @@ const CreateRequest = () => {
         ></textarea>
 
         {/* Submit */}
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className="btn-gradient">
           Request Blood
         </button>
-
       </form>
     </div>
   );
