@@ -21,6 +21,7 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState('');
+  const [userStatus, setUserStatus] = useState("");
 
   const createUser = (email, password) => {
     setLoading(true);
@@ -59,6 +60,7 @@ const AuthProvider = ({ children }) => {
   axios.get(`http://localhost:5000/users/role/${user.email}`)
     .then(res => {
       setRole(res.data.role);
+      setUserStatus(res.data.status);
     })
     .catch(err => {
       console.error("Error fetching user role:", err);
@@ -76,7 +78,8 @@ const AuthProvider = ({ children }) => {
     logOutUser,
     user,
     loading,
-    role
+    role,
+    userStatus
   };
   return <AuthContext value={authInfo}>{children}
             </AuthContext>;

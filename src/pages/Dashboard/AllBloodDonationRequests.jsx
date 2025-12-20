@@ -1,87 +1,64 @@
-
-
-
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
-
 import { NavLink } from "react-router";
 import Swal from "sweetalert2";
-import { AuthContext } from "../../context/AuthContext";
 
-const MyDonationRequests = () => {
-  const { user } = useContext(AuthContext);
-
+const AllBloodDonationRequests = () => {
   const [requests, setRequests] = useState([]);
-  const [filter, setFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
 
+  // ✅ PAGINATION STATE
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   useEffect(() => {
-    if (!user?.email) return;
-
     axios
-      .get("http://localhost:5000/donation-requests", {
-        params: { email: user.email },
-      })
+      .get("http://localhost:5000/donation-requests/all")
       .then((res) => setRequests(res.data))
       .catch((err) => console.error(err));
-  }, [user]);
+  }, []);
 
-  // 🔹 Filter
-  const filteredRequests = filter
-    ? requests.filter((r) => r.donationStatus === filter)
-    : requests;
-
-  // 🔹 Pagination
+  // ✅ PAGINATION CALCULATION
+  const totalPages = Math.ceil(requests.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginated = filteredRequests.slice(
+  const currentRequests = requests.slice(
     startIndex,
     startIndex + itemsPerPage
   );
 
-  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const updateStatus = async (id, status) => {
+    await axios.patch(
+      `http://localhost:5000/donation-requests/status/${id}`,
+      { status }
+    );
 
-  // 🔹 Delete
+    setRequests((prev) =>
+      prev.map((r) =>
+        r._id === id ? { ...r, donationStatus: status } : r
+      )
+    );
+  };
+
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "This request will be deleted!",
+      title: "Delete request?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, delete it",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
+    }).then(async (res) => {
+      if (res.isConfirmed) {
         await axios.delete(
           `http://localhost:5000/donation-requests/${id}`
         );
         setRequests((prev) => prev.filter((r) => r._id !== id));
-        Swal.fire("Deleted!", "Request removed", "success");
       }
     });
   };
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">My Donation Requests</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        All Blood Donation Requests
+      </h1>
 
-      {/* Filter */}
-      <select
-        className="select select-bordered mb-4"
-        value={filter}
-        onChange={(e) => {
-          setFilter(e.target.value);
-          setCurrentPage(1);
-        }}
-      >
-        <option value="">All Status</option>
-        <option value="pending">Pending</option>
-        <option value="inprogress">In Progress</option>
-        <option value="done">Done</option>
-        <option value="canceled">Canceled</option>
-      </select>
-
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           <thead>
@@ -98,7 +75,7 @@ const MyDonationRequests = () => {
           </thead>
 
           <tbody>
-            {paginated.map((req, index) => (
+            {currentRequests.map((req, index) => (
               <tr key={req._id}>
                 <td>{startIndex + index + 1}</td>
                 <td>{req.recipientName}</td>
@@ -106,7 +83,7 @@ const MyDonationRequests = () => {
                 <td>{req.donationDate}</td>
                 <td>{req.donationTime}</td>
                 <td>{req.bloodGroup || "N/A"}</td>
-                <td>{req.donationStatus}</td>
+                <td className="capitalize">{req.donationStatus}</td>
 
                 <td className="flex gap-2 flex-wrap">
                   <NavLink
@@ -129,6 +106,23 @@ const MyDonationRequests = () => {
                   >
                     Delete
                   </button>
+
+                  {req.donationStatus === "inprogress" && (
+                    <>
+                      <button
+                        onClick={() => updateStatus(req._id, "done")}
+                        className="btn btn-xs btn-success"
+                      >
+                        Done
+                      </button>
+                      <button
+                        onClick={() => updateStatus(req._id, "canceled")}
+                        className="btn btn-xs btn-outline"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -136,23 +130,38 @@ const MyDonationRequests = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-4 flex gap-2">
-        {[...Array(totalPages).keys()].map((num) => (
+      {/* ✅ PAGINATION UI */}
+      <div className="flex justify-center mt-6 gap-2">
+        <button
+          className="btn btn-sm"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((p) => p - 1)}
+        >
+          Prev
+        </button>
+
+        {[...Array(totalPages).keys()].map((page) => (
           <button
-            key={num}
-            onClick={() => setCurrentPage(num + 1)}
-            className={`btn btn-xs ${
-              currentPage === num + 1 ? "btn-primary" : ""
+            key={page}
+            className={`btn btn-sm ${
+              currentPage === page + 1 ? "btn-primary" : ""
             }`}
+            onClick={() => setCurrentPage(page + 1)}
           >
-            {num + 1}
+            {page + 1}
           </button>
         ))}
+
+        <button
+          className="btn btn-sm"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((p) => p + 1)}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
 };
 
-export default MyDonationRequests;
-
+export default AllBloodDonationRequests;

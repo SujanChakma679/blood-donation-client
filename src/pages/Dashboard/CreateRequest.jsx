@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 
 const CreateRequest = () => {
-  const { user } = useContext(AuthContext);
+  const { user, userStatus } = useContext(AuthContext);
 
   // ---------- STATES ----------
   const [districts, setDistricts] = useState([]);
@@ -43,6 +43,7 @@ const CreateRequest = () => {
   };
 
   // ---------- HANDLE SUBMIT ----------
+
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
 
@@ -68,77 +69,122 @@ const CreateRequest = () => {
   //       donationRequest
   //     );
 
+  //     if (userStatus === "blocked") {
+  //       return (
+  //         <div className="p-6 text-center">
+  //           <h2 className="text-xl font-bold text-red-600">
+  //             You are blocked 🚫
+  //           </h2>
+  //           <p className="mt-2 text-gray-600">
+  //             You cannot create a donation request. Please contact support.
+  //           </p>
+  //         </div>
+  //       );
+  //     }
+
   //     if (res.data.insertedId) {
-  //       // success alert
+  //       // 1. Show success alert
   //       Swal.fire({
   //         icon: "success",
   //         title: "Request Created!",
   //         text: "Donation request created successfully!",
   //       });
+
+  //       // 2. Clear all form fields
+  //       setFormData({
+  //         recipientName: "",
+  //         hospitalName: "",
+  //         address: "",
+  //         bloodGroup: "",
+  //         donationDate: "",
+  //         donationTime: "",
+  //         message: "",
+  //       });
+  //       setDistrict("");
+  //       setUpazila("");
+
+  //       // Optional: Reset the form HTML element to clear any browser-level caching
+  //       e.target.reset();
   //     }
   //   } catch (error) {
   //     console.error("Donation request error:", error);
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Oops...",
+  //       text: "Something went wrong while creating the request.",
+  //     });
   //   }
   // };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const donationRequest = {
-      requesterName: user?.displayName,
-      requesterEmail: user?.email,
-      recipientName: formData.recipientName,
-      district,
-      upazila,
-      hospitalName: formData.hospitalName,
-      address: formData.address,
-      bloodGroup: formData.bloodGroup,
-      donationDate: formData.donationDate,
-      donationTime: formData.donationTime,
-      message: formData.message,
-      donationStatus: "pending",
-      createdAt: new Date(),
-    };
+  // 🚫 BLOCKED USER CHECK (FRONTEND)
+  if (userStatus === "blocked") {
+    Swal.fire({
+      icon: "error",
+      title: "Access Denied 🚫",
+      text: "Your account is blocked. You cannot create a donation request.",
+      confirmButtonColor: "#d33",
+    });
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/donation-requests",
-        donationRequest
-      );
-
-      if (res.data.insertedId) {
-        // 1. Show success alert
-        Swal.fire({
-          icon: "success",
-          title: "Request Created!",
-          text: "Donation request created successfully!",
-        });
-
-        // 2. Clear all form fields
-        setFormData({
-          recipientName: "",
-          hospitalName: "",
-          address: "",
-          bloodGroup: "",
-          donationDate: "",
-          donationTime: "",
-          message: "",
-        });
-        setDistrict("");
-        setUpazila("");
-        
-        // Optional: Reset the form HTML element to clear any browser-level caching
-        e.target.reset();
-      }
-    } catch (error) {
-      console.error("Donation request error:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Something went wrong while creating the request.",
-      });
-    }
+  const donationRequest = {
+    requesterName: user?.displayName,
+    requesterEmail: user?.email,
+    recipientName: formData.recipientName,
+    district,
+    upazila,
+    hospitalName: formData.hospitalName,
+    address: formData.address,
+    bloodGroup: formData.bloodGroup,
+    donationDate: formData.donationDate,
+    donationTime: formData.donationTime,
+    message: formData.message,
+    donationStatus: "pending",
+    createdAt: new Date(),
   };
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/donation-requests",
+      donationRequest
+    );
+
+    if (res.data.insertedId) {
+      Swal.fire({
+        icon: "success",
+        title: "Request Created ✅",
+        text: "Donation request created successfully!",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      // Reset form
+      setFormData({
+        recipientName: "",
+        hospitalName: "",
+        address: "",
+        bloodGroup: "",
+        donationDate: "",
+        donationTime: "",
+        message: "",
+      });
+      setDistrict("");
+      setUpazila("");
+      e.target.reset();
+    }
+  } catch (error) {
+    console.error("Donation request error:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Something went wrong",
+      text: "Please try again later.",
+    });
+  }
+};
+
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded">
