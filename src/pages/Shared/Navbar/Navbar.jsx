@@ -5,10 +5,6 @@ import { Link, NavLink } from "react-router";
 import { useTheme } from "../../../context/ThemeContext";
 import { Moon, Sun } from "lucide-react";
 
-// import { Link, NavLink } from "react-router";
-// import Swal from "sweetalert2";
-// import { AuthContext } from "../../context/AuthContext";
-// import { Moon, Sun } from "lucide-react";
 
 const Navbar = () => {
   const { user, logOutUser } = useContext(AuthContext);
@@ -48,7 +44,10 @@ const Navbar = () => {
             <NavLink to="/register">Register</NavLink>
           </li>
           <li>
-            <NavLink to="movies/add">Add Movies</NavLink>
+            <NavLink to="donation-requests">Donation Requests</NavLink>
+          </li>
+           <li>
+            <NavLink to="/search-donors">Search Donors</NavLink>
           </li>
           <li>
             <NavLink to="/dashboard">Dashboard</NavLink>

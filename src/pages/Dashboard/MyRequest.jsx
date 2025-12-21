@@ -1,12 +1,9 @@
-
-
-
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-
 import { NavLink } from "react-router";
 import Swal from "sweetalert2";
 import { AuthContext } from "../../context/AuthContext";
+
 
 const MyDonationRequests = () => {
   const { user } = useContext(AuthContext);
@@ -28,25 +25,24 @@ const MyDonationRequests = () => {
       .catch((err) => console.error(err));
   }, [user]);
 
-  // 🔹 Filter
+  /* ================= FILTER ================= */
   const filteredRequests = filter
     ? requests.filter((r) => r.donationStatus === filter)
     : requests;
 
-  // 🔹 Pagination
+  /* ================= PAGINATION ================= */
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginated = filteredRequests.slice(
     startIndex,
     startIndex + itemsPerPage
   );
-
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
 
-  // 🔹 Delete
+  /* ================= DELETE ================= */
   const handleDelete = (id) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "This request will be deleted!",
+      title: "Delete this request?",
+      text: "This action cannot be undone",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it",
@@ -59,6 +55,20 @@ const MyDonationRequests = () => {
         Swal.fire("Deleted!", "Request removed", "success");
       }
     });
+  };
+
+  /* ================= STATUS UPDATE ================= */
+  const updateStatus = async (id, status) => {
+    await axios.patch(
+      `http://localhost:5000/donation-requests/status/${id}`,
+      { status }
+    );
+
+    setRequests((prev) =>
+      prev.map((r) =>
+        r._id === id ? { ...r, donationStatus: status } : r
+      )
+    );
   };
 
   return (
@@ -89,10 +99,10 @@ const MyDonationRequests = () => {
               <th>#</th>
               <th>Recipient</th>
               <th>Location</th>
-              <th>Date</th>
-              <th>Time</th>
+              <th>Date / Time</th>
               <th>Blood</th>
               <th>Status</th>
+              <th>Donor Info</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -103,12 +113,41 @@ const MyDonationRequests = () => {
                 <td>{startIndex + index + 1}</td>
                 <td>{req.recipientName}</td>
                 <td>{req.district}, {req.upazila}</td>
-                <td>{req.donationDate}</td>
-                <td>{req.donationTime}</td>
-                <td>{req.bloodGroup || "N/A"}</td>
-                <td>{req.donationStatus}</td>
+                <td>
+                  {req.donationDate} <br />
+                  {req.donationTime}
+                </td>
+                <td>{req.bloodGroup}</td>
 
+                <td>
+                  <span className={`badge ${
+                    req.donationStatus === "pending"
+                      ? "badge-warning"
+                      : req.donationStatus === "inprogress"
+                      ? "badge-info"
+                      : req.donationStatus === "done"
+                      ? "badge-success"
+                      : "badge-error"
+                  }`}>
+                    {req.donationStatus}
+                  </span>
+                </td>
+
+                {/* Donor Info */}
+                <td>
+                  {req.donationStatus === "inprogress" ? (
+                    <div>
+                      <p>{req.donorName}</p>
+                      <p className="text-xs">{req.donorEmail}</p>
+                    </div>
+                  ) : (
+                    "—"
+                  )}
+                </td>
+
+                {/* Actions */}
                 <td className="flex gap-2 flex-wrap">
+                  {/* View always */}
                   <NavLink
                     to={`/dashboard/request/${req._id}`}
                     className="btn btn-xs btn-info"
@@ -116,19 +155,43 @@ const MyDonationRequests = () => {
                     View
                   </NavLink>
 
-                  <NavLink
-                    to={`/dashboard/edit-request/${req._id}`}
-                    className="btn btn-xs btn-warning"
-                  >
-                    Edit
-                  </NavLink>
+                  {/* Pending → Edit & Delete */}
+                  {req.donationStatus === "pending" && (
+                    <>
+                      <NavLink
+                        to={`/dashboard/edit-request/${req._id}`}
+                        className="btn btn-xs btn-warning"
+                      >
+                        Edit
+                      </NavLink>
 
-                  <button
-                    onClick={() => handleDelete(req._id)}
-                    className="btn btn-xs btn-error"
-                  >
-                    Delete
-                  </button>
+                      <button
+                        onClick={() => handleDelete(req._id)}
+                        className="btn btn-xs btn-error"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+
+                  {/* Inprogress → Done & Cancel */}
+                  {req.donationStatus === "inprogress" && (
+                    <>
+                      <button
+                        onClick={() => updateStatus(req._id, "done")}
+                        className="btn btn-xs btn-success"
+                      >
+                        Done
+                      </button>
+
+                      <button
+                        onClick={() => updateStatus(req._id, "canceled")}
+                        className="btn btn-xs btn-outline"
+                      >
+                        Cancel
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -137,22 +200,23 @@ const MyDonationRequests = () => {
       </div>
 
       {/* Pagination */}
-      <div className="mt-4 flex gap-2">
-        {[...Array(totalPages).keys()].map((num) => (
-          <button
-            key={num}
-            onClick={() => setCurrentPage(num + 1)}
-            className={`btn btn-xs ${
-              currentPage === num + 1 ? "btn-primary" : ""
-            }`}
-          >
-            {num + 1}
-          </button>
-        ))}
-      </div>
+      {totalPages > 1 && (
+        <div className="mt-4 flex gap-2">
+          {[...Array(totalPages).keys()].map((num) => (
+            <button
+              key={num}
+              onClick={() => setCurrentPage(num + 1)}
+              className={`btn btn-xs ${
+                currentPage === num + 1 ? "btn-primary" : ""
+              }`}
+            >
+              {num + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 export default MyDonationRequests;
-
