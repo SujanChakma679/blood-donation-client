@@ -106,7 +106,7 @@ const SearchDonors = () => {
           ))}
         </select>
 
-        <button className="btn btn-primary">Search</button>
+        <button className="btn-gradient">Search</button>
       </form>
 
       {/* RESULT SECTION */}
@@ -137,7 +137,7 @@ const SearchDonors = () => {
                     <tr key={donor._id}>
                       <td>{donor.name}</td>
                       <td>{donor.email}</td>
-                      <td>{donor.blood}</td> {/* ✅ FIXED */}
+                      <td>{donor.blood}</td>
                       <td>{donor.district}</td>
                       <td>{donor.upazila}</td>
                     </tr>

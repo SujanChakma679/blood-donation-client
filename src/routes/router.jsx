@@ -13,11 +13,17 @@ import DonationRequestDetails from "../pages/Dashboard/RequestDetails";
 import DonationDetails from "../components/DonationRequestDetails/DonationRequestDetails";
 import DonationRequests from "../components/DonationRequests/DonationRequests";
 import SearchDonors from "../components/SearchDonors/SearchDonors";
+import Donation from "../components/Donation/Donation";
+import PaymentSuccess from "../components/PaymentSuccess/PaymentSuccess";
+import PaymentRoute from "./PaymentRoute";
+import Payment from "../components/Payment/Payment";
+import ErrorPage from "../pages/ErrorPage/ErrorPage";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
+    errorElement: <ErrorPage />,  
     children: [
       {
         index: true,
@@ -39,11 +45,22 @@ export const router = createBrowserRouter([
         path: "donation-requests/:id",
         element: <DonationDetails />,
       },
-       {
+      {
         path: "search-donors",
         element: <SearchDonors />,
       },
-      
+      {
+        path: "donation",
+        element: <Donation />,
+      },
+      {
+        path: "payment-success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "financial-donations",
+        element: <Payment />,
+      },
     ],
   },
   {
@@ -74,7 +91,6 @@ export const router = createBrowserRouter([
         path: "/dashboard/request/:id",
         element: <DonationRequestDetails />,
       },
-      
     ],
   },
 ]);
