@@ -91,7 +91,7 @@ const Navbar = () => {
           </ul>
         </div>
         <Link to={"/"} className="btn btn-ghost font-semibold text-xl bg-gradient-to-tr from-purple-700 to-emerald-600 bg-clip-text text-transparent">
-          Movie Master
+          Blood Donation
         </Link>
       </div>
       <div className="navbar-center hidden lg:flex">

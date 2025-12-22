@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuth } from "firebase/auth";
 
 const AxiosSecure = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "blood-donation-server-omega-neon.vercel.app",
 });
 
 AxiosSecure.interceptors.request.use(async (config) => {

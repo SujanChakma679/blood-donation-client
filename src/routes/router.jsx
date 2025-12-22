@@ -18,12 +18,14 @@ import PaymentSuccess from "../components/PaymentSuccess/PaymentSuccess";
 import PaymentRoute from "./PaymentRoute";
 import Payment from "../components/Payment/Payment";
 import ErrorPage from "../pages/ErrorPage/ErrorPage";
+import NotFound from "../pages/NotFound/NotFound";
+import PrivateRoute from "./PrivateRoutes";
 
 export const router = createBrowserRouter([
   {
     path: "/",
     Component: RootLayout,
-    errorElement: <ErrorPage />,  
+    errorElement: <ErrorPage />,
     children: [
       {
         index: true,
@@ -59,38 +61,52 @@ export const router = createBrowserRouter([
       },
       {
         path: "financial-donations",
-        element: <Payment />,
+        element: (
+          <PrivateRoute>
+            <Payment />
+          </PrivateRoute>
+        ),
       },
     ],
   },
   {
     path: "/",
-    Component: DashboardLayout,
+    // element: <PrivateRoute />,
     children: [
       {
         path: "dashboard",
-        Component: Dashboard,
-      },
-      {
-        path: "dashboard/my-donation-requests",
-        Component: MyRequest,
-      },
-      {
-        path: "dashboard/create-donation-request",
-        Component: CreateRequest,
-      },
-      {
-        path: "dashboard/all-users",
-        Component: AllUsers,
-      },
-      {
-        path: "dashboard/all-blood-donation-request",
-        Component: AllBloodDonationRequests,
-      },
-      {
-        path: "/dashboard/request/:id",
-        element: <DonationRequestDetails />,
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: <Dashboard />,
+          },
+          {
+            path: "my-donation-requests",
+            element: <MyRequest />,
+          },
+          {
+            path: "create-donation-request",
+            element: <CreateRequest />,
+          },
+          {
+            path: "all-users",
+            element: <AllUsers />,
+          },
+          {
+            path: "all-blood-donation-request",
+            element: <AllBloodDonationRequests />,
+          },
+          {
+            path: "request/:id",
+            element: <DonationRequestDetails />,
+          },
+        ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFound />,
   },
 ]);

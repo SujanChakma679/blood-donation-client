@@ -1,10 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 const VolunteerDashboard = () => {
+
+  const { user } = useContext(AuthContext);
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">
-        Welcome, Volunteer 👋
+         Welcome, {user?.displayName || "Volunteer"}! 👋
       </h1>
 
       <p className="text-gray-600">
